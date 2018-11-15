@@ -15,5 +15,6 @@ https://www.facebook.com/groups/271796230307847/
 
 Introduction - https://www.youtube.com/watch?v=lCLoN5QgbHY
 
-Day #1 - Product Service - 
+Day #1 - Product Service
+Postman collections - https://www.getpostman.com/collections/6ff99af0b4720a982496
 
