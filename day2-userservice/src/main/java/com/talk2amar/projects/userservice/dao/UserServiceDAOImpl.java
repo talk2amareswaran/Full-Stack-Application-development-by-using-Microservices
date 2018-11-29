@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -42,14 +44,17 @@ public class UserServiceDAOImpl implements UserServiceDAO {
 	
 	BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 	
+	private static final Logger logger = LoggerFactory.getLogger(UserServiceDAOImpl.class);
 	
 	@Override
 	public boolean isEmailAlreadyExists(String email) {
+		logger.info("Email already exists sql query::"+EMAIL_ALREADY_EXISTS_QUERY);
 		return jdbcTemplate.queryForObject(EMAIL_ALREADY_EXISTS_QUERY, new Object[] { email }, Integer.class) > 0;
 	}
 
 	@Override
 	public void insertUser(UserModel userModel) {
+		logger.info("user insert sql query::"+USER_INSERT_QUERY);
 		jdbcTemplate.update(USER_INSERT_QUERY,
 				new Object[] { userModel.getName(), userModel.getEmail(), passwordEncoder.encode(userModel.getPassword()),
 						System.currentTimeMillis() / 1000, INITIAL_RECORD, System.currentTimeMillis() / 1000,
@@ -59,6 +64,7 @@ public class UserServiceDAOImpl implements UserServiceDAO {
 
 	@Override
 	public List<UserModel> getUsers() {
+		logger.info("Get users sql query::"+GET_USERS_SQL_QUERY);
 		Collection<Map<String, Object>> rows = jdbcTemplate.queryForList(GET_USERS_SQL_QUERY);
 		List<UserModel> userModelList = new ArrayList<>();
 		rows.stream().map((row) -> {
@@ -82,6 +88,7 @@ public class UserServiceDAOImpl implements UserServiceDAO {
 	public UserModel getUser(String id) {
 		UserModel userModel = new UserModel();
 		try {
+			logger.info("select user by id sql query::"+SELECT_USER_QUERY);
 			jdbcTemplate.queryForObject(SELECT_USER_QUERY, new Object[] { id }, (ResultSet rs, int rowNum) -> {
 				userModel.setCreatedby(rs.getString(CREATED_BY));
 				userModel.setCreateddate(rs.getString(CREATED_DATE));
@@ -100,17 +107,20 @@ public class UserServiceDAOImpl implements UserServiceDAO {
 
 	@Override
 	public boolean isUserExistsById(String id) {
+		logger.info("user by id exists sql query::"+USER_ID_EXISTS_QUERY);
 		return jdbcTemplate.queryForObject(USER_ID_EXISTS_QUERY, new Object[] {id}, Integer.class)>0;
 	}
 
 	@Override
 	public void updateUser(UserModel user, String id) {
+		logger.info("update user sql query::"+USER_ID_EXISTS_QUERY);
 		jdbcTemplate.update(UPDATE_USER_SQL_QUERY, new Object[] {user.getName(), System.currentTimeMillis()/1000, INITIAL_RECORD, id});
 		
 	}
 
 	@Override
 	public void deleteUser(String id) {
+		logger.info("delete user sql query:"+DELETE_SQL_QUERY);
 		jdbcTemplate.update(DELETE_SQL_QUERY, new Object[] {id});
 	}
 
