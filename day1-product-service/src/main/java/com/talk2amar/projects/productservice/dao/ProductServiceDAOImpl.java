@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -36,8 +38,12 @@ public class ProductServiceDAOImpl implements ProductServiceDAO {
 	private static final String PRODUCT_SKU = "sku";
 	private static final String PRODUCT_PRICE = "price";
 
+	private static final Logger logger = LoggerFactory.getLogger(ProductServiceDAOImpl.class);
+	
 	@Override
 	public void createProduct(Product product) {
+		
+		logger.info("create product sql:"+PRODUCT_INSERT_SQL);
 		jdbcTemplate.update(PRODUCT_INSERT_SQL,
 				new Object[] { product.getName(), product.getSku(), product.getPrice(), product.getQty(),
 						(System.currentTimeMillis() / 1000), INITIAL_RECORD, (System.currentTimeMillis() / 1000),
@@ -48,6 +54,7 @@ public class ProductServiceDAOImpl implements ProductServiceDAO {
 	@Override
 	public List<Product> getProducts() {
 
+		logger.info("get product sql:"+PRODUCT_SQL_QUERY);
 		Collection<Map<String, Object>> rows = jdbcTemplate.queryForList(PRODUCT_SQL_QUERY);
 		List<Product> productsList = new ArrayList<>();
 		rows.stream().map((row) -> {
@@ -71,11 +78,13 @@ public class ProductServiceDAOImpl implements ProductServiceDAO {
 
 	@Override
 	public void deleteProduct(String id) {
+		logger.info("delete product sql:"+PRODUCT_DELETE_QUERY);
 		jdbcTemplate.update(PRODUCT_DELETE_QUERY, new Object[] { id });
 	}
 
 	@Override
 	public void updateProduct(Product product, String id) {
+		logger.info("update product sql:"+PRODUCT_UPDATE_QUERY);
 		jdbcTemplate.update(PRODUCT_UPDATE_QUERY, new Object[] { product.getName(), product.getSku(),
 				product.getPrice(), product.getQty(), (System.currentTimeMillis() / 1000), INITIAL_RECORD, id });
 
@@ -83,16 +92,19 @@ public class ProductServiceDAOImpl implements ProductServiceDAO {
 
 	@Override
 	public boolean isSkuExists(String sku) {
+		logger.info("is SKU product exists sql:"+SKU_EXISTS_SQL_QUERY);
 		return jdbcTemplate.queryForObject(SKU_EXISTS_SQL_QUERY, new Object[] { sku }, Integer.class) > 0;
 	}
 
 	@Override
 	public boolean isProductExists(String id) {
+		logger.info("is product exists sql:"+PRODUCT_ID_EXISTS_SQL_QUERY);
 		return jdbcTemplate.queryForObject(PRODUCT_ID_EXISTS_SQL_QUERY, new Object[] { id }, Integer.class) > 0;
 	}
 
 	@Override
 	public Product getProductById(String id) {
+		logger.info("get product by id sql:"+SELECT_PRODUCT_BY_ID_SQL);
 		Product product = new Product();
 		try {
 			jdbcTemplate.queryForObject(SELECT_PRODUCT_BY_ID_SQL, new Object[] { id }, (ResultSet rs, int rowNum) -> {
